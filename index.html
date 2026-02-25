@@ -24,6 +24,7 @@
                 <button id="btn-export-json" class="btn secondary">Export</button>
                 <button id="btn-import-json" class="btn secondary">Import</button>
                 <input type="file" id="import-file-input" style="display: none;" accept=".json">
+                <button id="btn-bulk-print" class="btn primary" style="background-color: var(--secondary-color);">Bulk Print (CSV)</button>
                 <button id="btn-print" class="btn primary">Print</button>
                 <div class="theme-switch-wrapper">
                     <label class="theme-switch" for="checkbox-theme">
@@ -121,10 +122,12 @@
             <div id="print-variables-form">
                 <!-- Inputs injected by JS -->
             </div>
+            
             <div class="form-group">
-                <label for="print-copies">Number of Copies</label>
+                <label for="print-copies" id="label-print-copies">Number of Copies</label>
                 <input type="number" id="print-copies" value="1" min="1" step="1">
             </div>
+            
             <div class="form-group">
                 <label for="print-layout">Print Layout</label>
                 <select id="print-layout">
@@ -139,6 +142,56 @@
             <div class="modal-actions">
                 <button id="btn-cancel-print" class="btn secondary">Cancel</button>
                 <button id="btn-confirm-print" class="btn primary">Print Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Print Modal -->
+    <div id="modal-bulk-print" class="modal">
+        <div class="modal-content large">
+            <h2>Bulk Print (CSV)</h2>
+            <p style="margin-top: 0;">Upload a CSV file to automatically populate variables and print multiple labels. 
+            <strong>Set the 'copies' column in your CSV to determine how many labels each row prints.</strong></p>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button id="btn-download-csv-sample" class="btn secondary" style="flex: 1;">Download Sample CSV</button>
+                <button id="btn-upload-csv" class="btn secondary" style="flex: 1;">Upload Filled CSV</button>
+                <input type="file" id="input-csv-upload" accept=".csv" style="display: none;">
+            </div>
+            <div id="csv-upload-status" style="font-size: 14px; font-weight: 500; color: var(--primary-color); margin-bottom: 15px;">
+                Status: No file uploaded yet.
+            </div>
+            
+            <div class="form-group" id="group-bulk-print-option" style="display: none;">
+                <label for="bulk-print-option">Which rows to print?</label>
+                <select id="bulk-print-option">
+                    <option value="all">Print All Rows</option>
+                    <option value="selected">Print Selected Row Only</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="group-bulk-row-select" style="display: none;">
+                <label for="bulk-row-select">Select Row</label>
+                <select id="bulk-row-select">
+                    <!-- Options injected by JS -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bulk-print-layout">Print Layout</label>
+                <select id="bulk-print-layout">
+                    <option value="1">1-Up (Single Column)</option>
+                    <option value="2">2-Up (Two Columns)</option>
+                </select>
+            </div>
+            <div class="form-group" id="group-bulk-print-gap" style="display: none;">
+                <label for="bulk-print-gap">Horizontal Gap (mm)</label>
+                <input type="number" id="bulk-print-gap" value="2" min="0" step="0.5">
+            </div>
+
+            <div class="modal-actions">
+                <button id="btn-cancel-bulk-print" class="btn secondary">Cancel</button>
+                <button id="btn-confirm-bulk-print" class="btn primary">Bulk Print Now</button>
             </div>
         </div>
     </div>

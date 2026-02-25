@@ -218,6 +218,10 @@ const App = {
         document.getElementById('btn-print').addEventListener('click', () => {
             this.printEngine.startPrintFlow();
         });
+
+        document.getElementById('btn-bulk-print').addEventListener('click', () => {
+            this.printEngine.startBulkPrintFlow();
+        });
     }
 };
 
