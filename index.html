@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Label Designer</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;600;700&family=Oswald:wght@400;600&family=Source+Sans+3:wght@400;600&family=Slabo+27px&family=Raleway:wght@400;600&family=PT+Sans:wght@400;700&family=Josefin+Sans:wght@400;600&family=Nunito:wght@400;600;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;600&family=Rubik:wght@400;600&family=Merriweather:wght@400;700&family=Noto+Sans:wght@400;600&family=Fira+Sans:wght@400;600&family=Work+Sans:wght@400;600&family=Quicksand:wght@400;600&family=Karla:wght@400;600&family=Inconsolata:wght@400;600&family=Cabin:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header / Toolbar -->
+        <header class="top-bar">
+            <div class="brand">
+                <h1>Label Designer</h1>
+            </div>
+            <div class="top-actions">
+                <button id="btn-export-json" class="btn secondary">Export</button>
+                <button id="btn-import-json" class="btn secondary">Import</button>
+                <input type="file" id="import-file-input" style="display: none;" accept=".json">
+                <button id="btn-print" class="btn primary">Print</button>
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox-theme">
+                        <input type="checkbox" id="checkbox-theme" />
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="theme-icon">🌙</span>
+                </div>
+                <!-- Grid Switch -->
+                <div class="theme-switch-wrapper" style="margin-right:0;">
+                    <label class="theme-switch" for="checkbox-grid">
+                        <input type="checkbox" id="checkbox-grid" />
+                        <span class="slider round"></span>
+                    </label>
+                    <span style="margin-left:8px; font-size:14px; font-weight:500;">Grid</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Sidebar: Tools -->
+            <aside class="sidebar left-sidebar">
+                <h2>Tools</h2>
+                <div class="tool-grid">
+                    <button class="tool-btn" data-tool="text">
+                        <span class="icon">T</span>
+                        Fixed Text
+                    </button>
+                    <button class="tool-btn" data-tool="var-text">
+                        <span class="icon">{T}</span>
+                        Variable Text
+                    </button>
+                    <button class="tool-btn" data-tool="barcode">
+                        <span class="icon">||||</span>
+                        Code128 Barcode
+                    </button>
+                    <button class="tool-btn" data-tool="qrcode">
+                        <span class="icon">QR</span>
+                        QR Code
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Center: Design Canvas -->
+            <main class="design-area">
+                <div class="canvas-container-scroll">
+                    <div class="canvas-wrapper">
+                        <div id="design-canvas"></div>
+                    </div>
+                </div>
+                <!-- Status/Zoom Bar -->
+                <div class="status-bar">
+                    <div class="zoom-controls">
+                        <label for="zoom-slider">Zoom:</label>
+                        <input type="range" id="zoom-slider" min="0.5" max="6" step="0.1" value="2">
+                        <span id="zoom-readout">200%</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar: Properties -->
+            <aside class="sidebar right-sidebar">
+                <h2>Properties</h2>
+                <div id="properties-panel" class="properties-panel">
+                    <p class="empty-state">Select an element to edit properties</p>
+                    <!-- Form injected by JS based on selection -->
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Dimensions Modal -->
+    <div id="modal-dimensions" class="modal active">
+        <div class="modal-content">
+            <h2>New Label Design</h2>
+            <p>Enter the exact dimensions of your label roll in millimeters (mm).</p>
+            <div class="form-group">
+                <label for="label-width">Width (mm)</label>
+                <input type="number" id="label-width" value="50" min="10" step="1">
+            </div>
+            <div class="form-group">
+                <label for="label-height">Height (mm)</label>
+                <input type="number" id="label-height" value="25" min="10" step="1">
+            </div>
+            <button id="btn-create-canvas" class="btn primary full-width">Create Canvas</button>
+        </div>
+    </div>
+
+    <!-- Print / Variables Modal -->
+    <div id="modal-print" class="modal">
+        <div class="modal-content large">
+            <h2>Print Label</h2>
+            <p>Configure your print copies and layout.</p>
+            <div id="print-variables-form">
+                <!-- Inputs injected by JS -->
+            </div>
+            <div class="form-group">
+                <label for="print-copies">Number of Copies</label>
+                <input type="number" id="print-copies" value="1" min="1" step="1">
+            </div>
+            <div class="form-group">
+                <label for="print-layout">Print Layout</label>
+                <select id="print-layout">
+                    <option value="1">1-Up (Single Column)</option>
+                    <option value="2">2-Up (Two Columns)</option>
+                </select>
+            </div>
+            <div class="form-group" id="group-print-gap" style="display: none;">
+                <label for="print-gap">Horizontal Gap (mm)</label>
+                <input type="number" id="print-gap" value="2" min="0" step="0.5">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-cancel-print" class="btn secondary">Cancel</button>
+                <button id="btn-confirm-print" class="btn primary">Print Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Edit Modal -->
+    <div id="modal-text-edit" class="modal">
+        <div class="modal-content">
+            <h2>Edit Text</h2>
+            <div class="form-group" id="group-edit-text">
+                <label for="edit-text-val">Content</label>
+                <input type="text" id="edit-text-val">
+            </div>
+            <div class="form-group" id="group-edit-var" style="display:none;">
+                <label for="edit-var-name">Variable Name</label>
+                <input type="text" id="edit-var-name">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-cancel-text-edit" class="btn secondary">Cancel</button>
+                <button id="btn-save-text-edit" class="btn primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Print Zone (populated dynamically, shown only during @media print) -->
+    <div id="printZone"></div>
+
+    <!-- Scripts -->
+    <script src="js/ElementRenderer.js"></script>
+    <script src="js/ValueFormatter.js"></script>
+    <script src="js/CanvasManager.js"></script>
+    <script src="js/ElementManager.js"></script>
+    <script src="js/PropertyPanel.js"></script>
+    <script src="js/TemplateManager.js"></script>
+    <script src="js/PrintEngine.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
