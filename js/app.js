@@ -57,9 +57,30 @@ const App = {
                 localStorage.setItem('showGrid', 'false');
             }
         });
+
+        // Global Esc key listener to close modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) {
+                    activeModal.classList.remove('active');
+                }
+            }
+        });
     },
 
     setupModals() {
+        // Setup Modal Close Buttons (the 'X' icons)
+        const closeBtns = document.querySelectorAll('.modal-close-btn');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
         const modalDimensions = document.getElementById('modal-dimensions');
         const btnCreateCanvas = document.getElementById('btn-create-canvas');
 
@@ -210,6 +231,9 @@ const App = {
         document.getElementById('btn-new-project').addEventListener('click', () => {
             // Show the dimensions modal to start a new project
             document.getElementById('modal-dimensions').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('label-width').focus();
+            }, 50);
         });
 
         document.getElementById('btn-export-json').addEventListener('click', () => {

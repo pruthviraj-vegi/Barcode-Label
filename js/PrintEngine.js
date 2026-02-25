@@ -93,6 +93,17 @@ class PrintEngine {
             });
         }
 
+        const handlePrintEnter = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.executeManualPrint();
+            }
+        };
+
+        if (this.copiesInput) this.copiesInput.addEventListener('keydown', handlePrintEnter);
+        if (this.gapInput) this.gapInput.addEventListener('keydown', handlePrintEnter);
+        if (this.layoutSelect) this.layoutSelect.addEventListener('keydown', handlePrintEnter);
+
         // Cleanup print zone after printing
         window.addEventListener('afterprint', () => {
             this.cleanupPrintZone();
@@ -122,6 +133,16 @@ class PrintEngine {
         this.variables = this.getVariables();
         this.buildVariableForm();
         this.modal.classList.add('active');
+
+        // Auto-focus the first variable input, or the copies input if no variables
+        setTimeout(() => {
+            const firstVarInput = document.querySelector('#print-variables-form input');
+            if (firstVarInput) {
+                firstVarInput.focus();
+            } else if (this.copiesInput) {
+                this.copiesInput.focus();
+            }
+        }, 50);
     }
 
     startBulkPrintFlow() {
@@ -154,11 +175,24 @@ class PrintEngine {
         this.variables.forEach(v => {
             const group = document.createElement('div');
             group.className = 'form-group';
+
+            const inputId = `var-${v.name}`;
             group.innerHTML = `
-                <label for="var-${v.name}">Field: ${v.name}</label>
-                <input type="${v.type}" id="var-${v.name}" placeholder="Enter value for ${v.name}">
+                <label for="${inputId}">Field: ${v.name}</label>
+                <input type="${v.type}" id="${inputId}" placeholder="Enter value for ${v.name}">
             `;
             this.formContainer.appendChild(group);
+
+            // Bind Enter key to submit
+            const inputEl = document.getElementById(inputId);
+            if (inputEl) {
+                inputEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.executeManualPrint();
+                    }
+                });
+            }
         });
     }
 
