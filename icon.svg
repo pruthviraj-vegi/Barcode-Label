@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4f46e5"/>
+            <stop offset="100%" stop-color="#312e81"/>
+        </linearGradient>
+        <linearGradient id="labelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#e2e8f0"/>
+        </linearGradient>
+        <filter id="shadow" x="-5%" y="-5%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.3"/>
+        </filter>
+    </defs>
+
+    <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+    
+    <rect x="112" y="96" width="288" height="320" rx="32" fill="url(#labelGrad)" filter="url(#shadow)"/>
+    
+    <!-- Barcode Bars -->
+    <g fill="#0f172a">
+        <rect x="144" y="160" width="24" height="192" rx="6"/>
+        <rect x="184" y="160" width="48" height="192" rx="6"/>
+        <rect x="248" y="160" width="16" height="192" rx="6"/>
+        <rect x="280" y="160" width="40" height="192" rx="6"/>
+        <rect x="336" y="160" width="32" height="192" rx="6"/>
+    </g>
+
+    <!-- Laser Line -->
+    <path d="M 120 256 L 392 256" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 120 256 L 392 256" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+</svg>

@@ -51,7 +51,7 @@ class ElementManager {
             text: type === 'text' ? 'Sample Text' : (type === 'var-text' ? 'Variable' : ''),
             varName: type === 'var-text' ? 'variable' : '',
             fontFamily: 'Inter', // Default
-            fontSize: 12, // pt
+            fontSize: 10, // pt
             fontWeight: 'normal',
             textAlign: 'left',
             value: type === 'barcode' || type === 'qrcode' ? '123456789' : '',
