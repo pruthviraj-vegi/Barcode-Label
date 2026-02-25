@@ -665,6 +665,37 @@ input:checked + .slider:before {
    PRINT ZONE
    ═══════════════════════════════ */
 
+#csv-preview-container {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: auto;
+  margin-bottom: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  display: none; /* Hidden until data is uploaded */
+}
+
+#csv-preview-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+#csv-preview-container th,
+#csv-preview-container td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  white-space: nowrap;
+}
+
+#csv-preview-container th {
+  background-color: var(--secondary-color);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
 #printZone {
   display: none;
 }

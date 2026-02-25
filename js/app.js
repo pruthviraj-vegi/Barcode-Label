@@ -9,8 +9,12 @@ const App = {
     init() {
         this.setupThemeToggle();
         this.setupModals();
+        this.setupTopActions();
+        this.setupToolPanel();
+        this.setupZoomControls();
 
-        // Modules will be instantiated when Canvas is created
+        // Initialize default workspace on boot so tools (Import/Print) function immediately
+        this.initializeWorkspace(50, 25);
     },
 
     setupThemeToggle() {
@@ -154,7 +158,17 @@ const App = {
     },
 
     initializeWorkspace(widthMm, heightMm) {
-        // Instantiate managers
+        if (this.canvasManager) {
+            // If already initialized, just resize the existing workspace and clear it
+            this.canvasManager.resize(widthMm, heightMm);
+            this.elementManager.clearAll();
+            this.canvasManager.clear();
+
+            // Note: Keep zoom level intact
+            return;
+        }
+
+        // Instantiate managers (only happens once on boot)
         this.canvasManager = new CanvasManager('design-canvas', widthMm, heightMm);
         this.elementManager = new ElementManager(this.canvasManager);
         this.propertyPanel = new PropertyPanel(this.elementManager);
@@ -167,11 +181,6 @@ const App = {
         const canvas = document.getElementById('design-canvas');
         canvas.style.transformOrigin = 'center center';
         canvas.style.transform = `scale(${this.zoomLevel})`;
-
-        // Setup UI bindings that depend on instantiated managers
-        this.setupToolPanel();
-        this.setupTopActions();
-        this.setupZoomControls();
     },
 
     setupZoomControls() {
@@ -190,6 +199,7 @@ const App = {
     setupToolPanel() {
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                if (!this.elementManager) return;
                 const toolType = e.currentTarget.dataset.tool;
                 this.elementManager.addElement(toolType);
             });
@@ -197,8 +207,13 @@ const App = {
     },
 
     setupTopActions() {
+        document.getElementById('btn-new-project').addEventListener('click', () => {
+            // Show the dimensions modal to start a new project
+            document.getElementById('modal-dimensions').classList.add('active');
+        });
+
         document.getElementById('btn-export-json').addEventListener('click', () => {
-            this.templateManager.exportToFile();
+            if (this.templateManager) this.templateManager.exportToFile();
         });
 
         const importBtn = document.getElementById('btn-import-json');
@@ -209,18 +224,18 @@ const App = {
         });
 
         importInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
+            if (e.target.files.length > 0 && this.templateManager) {
                 this.templateManager.importFromFile(e.target.files[0]);
                 e.target.value = ''; // Reset
             }
         });
 
         document.getElementById('btn-print').addEventListener('click', () => {
-            this.printEngine.startPrintFlow();
+            if (this.printEngine) this.printEngine.startPrintFlow();
         });
 
         document.getElementById('btn-bulk-print').addEventListener('click', () => {
-            this.printEngine.startBulkPrintFlow();
+            if (this.printEngine) this.printEngine.startBulkPrintFlow();
         });
     }
 };

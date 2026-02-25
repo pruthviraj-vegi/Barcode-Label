@@ -29,11 +29,19 @@ const ValueFormatter = {
             key: 'date-compact',
             name: 'Date Compact (25022026)',
             format: (val) => {
-                // expecting YYYY-MM-DD from 'date' input
-                if (val && val.includes('-')) {
+                if (!val) return val;
+
+                // expecting YYYY-MM-DD from HTML 'date' input
+                if (val.includes('-')) {
                     const [y, m, d] = val.split('-');
                     return `${d}${m}${y}`;
                 }
+
+                // fallback for CSV inputs like DD/MM/YYYY
+                if (val.includes('/')) {
+                    return val.replace(/\//g, '');
+                }
+
                 return val;
             }
         },

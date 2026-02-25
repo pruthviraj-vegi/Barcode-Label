@@ -21,6 +21,7 @@
                 <h1>Label Designer</h1>
             </div>
             <div class="top-actions">
+                <button id="btn-new-project" class="btn primary" style="background-color: var(--secondary-color); margin-right: 15px;">New Project</button>
                 <button id="btn-export-json" class="btn secondary">Export</button>
                 <button id="btn-import-json" class="btn secondary">Import</button>
                 <input type="file" id="import-file-input" style="display: none;" accept=".json">
@@ -98,7 +99,7 @@
 
     <!-- Modals -->
     <!-- Dimensions Modal -->
-    <div id="modal-dimensions" class="modal active">
+    <div id="modal-dimensions" class="modal">
         <div class="modal-content">
             <h2>New Label Design</h2>
             <p>Enter the exact dimensions of your label roll in millimeters (mm).</p>
@@ -161,6 +162,9 @@
             <div id="csv-upload-status" style="font-size: 14px; font-weight: 500; color: var(--primary-color); margin-bottom: 15px;">
                 Status: No file uploaded yet.
             </div>
+
+            <!-- CSV Data Preview -->
+            <div id="csv-preview-container"></div>
             
             <div class="form-group" id="group-bulk-print-option" style="display: none;">
                 <label for="bulk-print-option">Which rows to print?</label>

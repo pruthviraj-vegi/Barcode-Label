@@ -19,6 +19,7 @@ class PrintEngine {
         this.btnUploadCSV = document.getElementById('btn-upload-csv');
         this.inputCSVUpload = document.getElementById('input-csv-upload');
         this.uploadStatus = document.getElementById('csv-upload-status');
+        this.previewContainer = document.getElementById('csv-preview-container');
         this.groupBulkOption = document.getElementById('group-bulk-print-option');
         this.bulkOptionSelect = document.getElementById('bulk-print-option');
         this.groupBulkRowSelect = document.getElementById('group-bulk-row-select');
@@ -130,6 +131,10 @@ class PrintEngine {
         // Reset state
         this.csvData = [];
         if (this.uploadStatus) this.uploadStatus.textContent = 'Status: No file uploaded yet.';
+        if (this.previewContainer) {
+            this.previewContainer.innerHTML = '';
+            this.previewContainer.style.display = 'none';
+        }
         if (this.groupBulkOption) this.groupBulkOption.style.display = 'none';
         if (this.groupBulkRowSelect) this.groupBulkRowSelect.style.display = 'none';
         if (this.inputCSVUpload) this.inputCSVUpload.value = '';
@@ -210,8 +215,17 @@ class PrintEngine {
         for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(',');
             const rowObj = {};
+
             headers.forEach((header, index) => {
-                rowObj[header] = values[index] ? values[index].trim() : '';
+                let val = values[index] ? values[index].trim() : '';
+
+                // If this header maps to a variable, apply its formatter immediately
+                const matchingVar = this.variables.find(v => v.name === header);
+                if (matchingVar) {
+                    val = this.applyFormatting(val, matchingVar.formatter);
+                }
+
+                rowObj[header] = val;
             });
             data.push(rowObj);
         }
@@ -221,6 +235,7 @@ class PrintEngine {
         // Update UI
         this.uploadStatus.textContent = `Status: Loaded ${this.csvData.length} row(s) successfully.`;
         this.groupBulkOption.style.display = 'block';
+        this.renderCSVPreview(headers);
 
         // Populate specific row select dropdown
         this.bulkRowSelect.innerHTML = '';
@@ -238,18 +253,75 @@ class PrintEngine {
         }
     }
 
+    renderCSVPreview(headers) {
+        if (!this.previewContainer) return;
+
+        if (this.csvData.length === 0) {
+            this.previewContainer.style.display = 'none';
+            return;
+        }
+
+        let html = '<table><thead><tr>';
+        // Headers
+        headers.forEach(h => {
+            html += `<th>${h}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        // Limit preview to first 5 rows to prevent massive DOM slowdowns on huge CSVs
+        const rowsToShow = Math.min(this.csvData.length, 5);
+        for (let i = 0; i < rowsToShow; i++) {
+            html += '<tr>';
+            const row = this.csvData[i];
+            headers.forEach(h => {
+                const val = row[h] !== undefined ? row[h] : '';
+                html += `<td>${val}</td>`;
+            });
+            html += '</tr>';
+        }
+
+        html += '</tbody></table>';
+
+        if (this.csvData.length > 5) {
+            html += `<div style="padding: 8px; text-align: center; color: var(--text-muted); font-size: 11px;">Showing first 5 rows of ${this.csvData.length} total.</div>`;
+        }
+
+        this.previewContainer.innerHTML = html;
+        this.previewContainer.style.display = 'block';
+    }
+
     executeManualPrint() {
         const copies = parseInt(this.copiesInput.value) || 1;
         const layout = parseInt(this.layoutSelect ? this.layoutSelect.value : 1) || 1;
         const gapMm = parseFloat(this.gapInput ? this.gapInput.value : 2) || 0;
 
         const formData = {};
+        let hasError = false;
+
         this.variables.forEach(v => {
             const el = document.getElementById(`var-${v.name}`);
-            let val = el ? el.value : '';
-            val = this.applyFormatting(val, v.formatter);
-            formData[v.name] = val;
+            if (!el) return;
+
+            if (el.value.trim() === '') {
+                // Highlight empty inputs
+                el.style.borderColor = 'var(--danger-color)';
+                el.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.2)';
+                hasError = true;
+            } else {
+                // Remove highlight if filled
+                el.style.borderColor = '';
+                el.style.boxShadow = '';
+
+                let val = el.value;
+                val = this.applyFormatting(val, v.formatter);
+                formData[v.name] = val;
+            }
         });
+
+        if (hasError) {
+            alert('Please fill in all variable fields before printing.');
+            return;
+        }
 
         // Add default copies to formData so it can be picked up by buildPrintZone
         formData['_copies'] = copies;
@@ -275,9 +347,8 @@ class PrintEngine {
             rowsToPrint = this.csvData.map(row => {
                 const formattedRow = {};
                 this.variables.forEach(v => {
-                    let val = row[v.name] || '';
-                    val = this.applyFormatting(val, v.formatter);
-                    formattedRow[v.name] = val;
+                    // Values were already formatted during parseCSV
+                    formattedRow[v.name] = row[v.name] || '';
                 });
                 // Look for 'copies' column, default to 1
                 const rowCopies = parseInt(row['copies']) || parseInt(row['Copies']) || 1;
@@ -293,9 +364,8 @@ class PrintEngine {
             const row = this.csvData[selectedIndex];
             const formattedRow = {};
             this.variables.forEach(v => {
-                let val = row[v.name] || '';
-                val = this.applyFormatting(val, v.formatter);
-                formattedRow[v.name] = val;
+                // Values were already formatted during parseCSV
+                formattedRow[v.name] = row[v.name] || '';
             });
             const rowCopies = parseInt(row['copies']) || parseInt(row['Copies']) || 1;
             formattedRow['_copies'] = rowCopies;
@@ -328,6 +398,9 @@ class PrintEngine {
             if (val.includes('-')) {
                 const [y, m, d] = val.split('-');
                 return `${d}${m}${y}`;
+            }
+            if (val.includes('/')) {
+                return val.replace(/\//g, '');
             }
         } else if (formatterStr === 'uppercase') {
             return String(val).toUpperCase();
@@ -384,6 +457,12 @@ class PrintEngine {
             for (let i = 0; i < rowCopies; i++) {
                 allLabelsToPrint.push(mappedElements);
             }
+
+            // If we are in 2-up layout and this specific data row resulted in an odd number of labels,
+            // we pad the array with a 'null' marker so the next data row starts fresh on a new line.
+            if (layout === 2 && rowCopies % 2 !== 0) {
+                allLabelsToPrint.push(null); // Represents a blank label
+            }
         });
 
         if (layout === 2) {
@@ -402,8 +481,14 @@ class PrintEngine {
                     background: white;
                 `;
 
-                // Add left label
-                rowContainer.appendChild(this.buildSingleLabel(allLabelsToPrint[i], widthMm, heightMm, pxPerMm));
+                // Add left label (if null, it's a padding element, add empty div context)
+                if (allLabelsToPrint[i]) {
+                    rowContainer.appendChild(this.buildSingleLabel(allLabelsToPrint[i], widthMm, heightMm, pxPerMm));
+                } else {
+                    const emptyLeft = document.createElement('div');
+                    emptyLeft.style.cssText = `width: ${widthMm}mm; height: ${heightMm}mm; flex-shrink: 0;`;
+                    rowContainer.appendChild(emptyLeft);
+                }
 
                 // Gap
                 if (gapMm > 0) {
@@ -415,7 +500,13 @@ class PrintEngine {
 
                 // Add right label if exists
                 if (!isLastOdd) {
-                    rowContainer.appendChild(this.buildSingleLabel(allLabelsToPrint[i + 1], widthMm, heightMm, pxPerMm));
+                    if (allLabelsToPrint[i + 1]) {
+                        rowContainer.appendChild(this.buildSingleLabel(allLabelsToPrint[i + 1], widthMm, heightMm, pxPerMm));
+                    } else {
+                        const emptyRight = document.createElement('div');
+                        emptyRight.style.cssText = `width: ${widthMm}mm; height: ${heightMm}mm; flex-shrink: 0;`;
+                        rowContainer.appendChild(emptyRight);
+                    }
                 }
 
                 this.printZone.appendChild(rowContainer);
