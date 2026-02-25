@@ -48,7 +48,7 @@ class ElementManager {
             height: type === 'barcode' ? 10 : 5,  // mm
             zIndex: this.elements.length + 1,
             // Specific properties
-            text: type === 'text' ? 'Sample Text' : (type === 'var-text' ? '{variable}' : ''),
+            text: type === 'text' ? 'Sample Text' : (type === 'var-text' ? 'Variable' : ''),
             varName: type === 'var-text' ? 'variable' : '',
             fontFamily: 'Inter', // Default
             fontSize: 12, // pt
