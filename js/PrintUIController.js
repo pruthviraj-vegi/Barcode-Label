@@ -117,7 +117,9 @@ class PrintUIController {
      */
     getVariables() {
         const vars = new Map();
-        this.elementManager.elements.forEach(meta => {
+        // Sort by zIndex ascending (bottom layer first, reverse of Layers panel)
+        const sorted = [...this.elementManager.elements].sort((a, b) => a.zIndex - b.zIndex);
+        sorted.forEach(meta => {
             if (meta.type === 'var-text' && meta.varName) {
                 vars.set(meta.varName, {
                     type: meta.inputType || 'text',

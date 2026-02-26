@@ -214,6 +214,7 @@ const App = {
         const canvas = document.getElementById('design-canvas');
         canvas.style.transformOrigin = 'center center';
         canvas.style.transform = `scale(${this.zoomLevel})`;
+        canvas.style.setProperty('--zoom', this.zoomLevel);
     },
 
     setupZoomControls() {
@@ -226,6 +227,7 @@ const App = {
             readout.textContent = `${Math.round(this.zoomLevel * 100)}%`;
             canvas.style.transformOrigin = 'center center';
             canvas.style.transform = `scale(${this.zoomLevel})`;
+            canvas.style.setProperty('--zoom', this.zoomLevel);
         });
     },
 

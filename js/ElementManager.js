@@ -4,6 +4,7 @@ class ElementManager {
         this.elements = [];
         this.selectedElement = null;
         this.elementIdCounter = 1;
+        this.snapGuides = new SnapGuides(document.getElementById('design-canvas'), 3);
 
         // Listeners for deselection
         const scrollContainer = document.querySelector('.canvas-container-scroll');
@@ -208,25 +209,57 @@ class ElementManager {
                     })
                 ],
                 listeners: {
+                    start: (event) => {
+                        const meta = this.elements.find(m => m.id === event.target.id);
+                        if (meta) {
+                            // Track raw cursor position separately from snapped display
+                            meta._dragRawX = this.canvasManager.mmToPx(meta.x);
+                            meta._dragRawY = this.canvasManager.mmToPx(meta.y);
+                        }
+                    },
                     move: (event) => {
                         const target = event.target;
                         const meta = this.elements.find(m => m.id === target.id);
                         if (!meta) return;
 
-                        // Calculate new pixels, respecting zoom scale
                         const zoom = window.App ? window.App.zoomLevel || 1 : 1;
-                        let xPx = this.canvasManager.mmToPx(meta.x) + (event.dx / zoom);
-                        let yPx = this.canvasManager.mmToPx(meta.y) + (event.dy / zoom);
 
-                        // Update DOM
+                        // Accumulate deltas on the RAW (unsnapped) position
+                        meta._dragRawX += event.dx / zoom;
+                        meta._dragRawY += event.dy / zoom;
+
+                        let xPx = meta._dragRawX;
+                        let yPx = meta._dragRawY;
+                        const wPx = this.canvasManager.mmToPx(meta.width);
+                        const hPx = this.canvasManager.mmToPx(meta.height);
+
+                        // Snap for display only (doesn't affect raw tracking)
+                        if (this.snapGuides) {
+                            const snapped = this.snapGuides.snap(
+                                meta.id, xPx, yPx, wPx, hPx,
+                                this.elements, this.canvasManager
+                            );
+                            xPx = snapped.x;
+                            yPx = snapped.y;
+                        }
+
+                        // Update DOM with snapped position
                         target.style.left = `${xPx}px`;
                         target.style.top = `${yPx}px`;
 
-                        // Update Meta
+                        // Save snapped position to meta (for rendering/export)
                         meta.x = this.canvasManager.pxToMm(xPx);
                         meta.y = this.canvasManager.pxToMm(yPx);
 
                         if (App.propertyPanel) App.propertyPanel.updatePanelValues(meta);
+                    },
+                    end: (event) => {
+                        const meta = this.elements.find(m => m.id === event.target.id);
+                        if (meta) {
+                            delete meta._dragRawX;
+                            delete meta._dragRawY;
+                        }
+                        if (this.snapGuides) this.snapGuides.clearGuides();
                     }
                 }
             })
