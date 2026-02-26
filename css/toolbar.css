@@ -1,0 +1,128 @@
+/* ── Top Properties Bar ── */
+.top-properties-bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 12px;
+  min-height: 48px;
+  height: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  gap: 12px;
+  flex-wrap: wrap;
+  width: max-content;
+  max-width: 90%;
+}
+
+.properties-panel-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+/* Modern Toolbar Groups (Pills) */
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.toolbar-group-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  padding: 0 6px;
+  user-select: none;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border-color);
+  margin: 0 4px;
+}
+
+/* Modern inputs inside toolbar */
+.toolbar-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+}
+
+.toolbar-input-wrap label {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.toolbar-input-wrap input[type="number"] {
+  width: 55px; /* Enough space for up/down incrementers */
+}
+
+.toolbar-input-wrap input[type="text"] {
+  min-width: 80px;
+  flex: 1; /* Allow to grow where space permits */
+}
+
+.toolbar-input-wrap select {
+  min-width: 85px; /* Enough space for the native chevron arrow */
+}
+
+.toolbar-input-wrap select.small-dropdown {
+  min-width: 60px; /* Small selects like Font Weight/Align */
+  padding: 4px 6px;
+}
+
+.toolbar-input-wrap input[type="number"],
+.toolbar-input-wrap input[type="text"],
+.toolbar-input-wrap select {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  height: 26px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  border-radius: 4px;
+  transition: all var(--transition-smooth);
+}
+
+.toolbar-input-wrap input:hover,
+.toolbar-input-wrap select:hover {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+.toolbar-input-wrap input:focus,
+.toolbar-input-wrap select:focus {
+  background-color: var(--bg-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  outline: none;
+}
+
+.toolbar-input-wrap input[type="color"] {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: transparent;
+}

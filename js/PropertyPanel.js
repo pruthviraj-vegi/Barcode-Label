@@ -10,152 +10,165 @@ class PropertyPanel {
      */
     updatePanel(meta) {
         this._currentMetaId = meta ? meta.id : null;
+        const topBar = document.querySelector('.top-properties-bar');
 
         if (!meta) {
-            this.container.innerHTML = '<p class="empty-state">Select an element to edit properties</p>';
+            this.container.innerHTML = '';
+            if (topBar) topBar.style.display = 'none';
             return;
         }
 
+        if (topBar) topBar.style.display = 'flex';
+
+
         let html = `
-            <div class="prop-section">
-                <h3>General</h3>
-                <div class="form-group row">
-                    <div class="col">
-                        <label>X (mm)</label>
-                        <input type="number" id="prop-x" value="${meta.x.toFixed(2)}" step="1">
-                    </div>
-                    <div class="col">
-                        <label>Y (mm)</label>
-                        <input type="number" id="prop-y" value="${meta.y.toFixed(2)}" step="1">
-                    </div>
+            <div class="toolbar-group">
+                <div class="toolbar-input-wrap">
+                    <input type="number" id="prop-x" value="${meta.x.toFixed(2)}" step="0.1" title="X Position (mm)">
                 </div>
-                <div class="form-group row">
-                    <div class="col">
-                        <label>Width (mm)</label>
-                        <input type="number" id="prop-w" value="${meta.width.toFixed(2)}" step="1">
-                    </div>
-                    <div class="col">
-                        <label>Height (mm)</label>
-                        <input type="number" id="prop-h" value="${meta.height.toFixed(2)}" step="1">
-                    </div>
+                <div class="toolbar-input-wrap">
+                    <input type="number" id="prop-y" value="${meta.y.toFixed(2)}" step="0.1" title="Y Position (mm)">
                 </div>
-                <div class="form-group row">
-                    <button id="btn-bring-forward" class="btn secondary">Bring Forward</button>
-                    <button id="btn-send-backward" class="btn secondary">Send Backward</button>
+            </div>
+
+            <div class="toolbar-group">
+                <div class="toolbar-input-wrap">
+                    <input type="number" id="prop-w" value="${meta.width.toFixed(2)}" step="0.1" title="Width (mm)">
                 </div>
+                <div class="toolbar-input-wrap">
+                    <input type="number" id="prop-h" value="${meta.height.toFixed(2)}" step="0.1" title="Height (mm)">
+                </div>
+            </div>
+            
+            <div class="toolbar-group">
+                <button id="btn-bring-forward" class="btn secondary" style="padding:4px 8px; font-size:11px; height:26px;">Front</button>
+                <button id="btn-send-backward" class="btn secondary" style="padding:4px 8px; font-size:11px; height:26px;">Back</button>
             </div>
         `;
 
         if (meta.type === 'text' || meta.type === 'var-text') {
             html += `
-                <div class="prop-section">
-                    <h3>Text Properties</h3>
-                    <div class="form-group">
-                        <label>Font Family</label>
-                        <select id="prop-font-family">
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <div class="toolbar-input-wrap">
+                        <select id="prop-font-family" title="Font Family">
                             ${ElementRenderer.buildFontOptions(meta.fontFamily)}
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Font Size (pt)</label>
-                        <input type="number" id="prop-fs" value="${meta.fontSize}" step="1">
+                    <div class="toolbar-input-wrap">
+                        <input type="number" id="prop-fs" value="${meta.fontSize}" step="1" title="Font Size">
                     </div>
-                    <div class="form-group">
-                        <label>Font Weight</label>
-                        <select id="prop-fw">
-                            <option value="normal" ${meta.fontWeight === 'normal' ? 'selected' : ''}>Normal</option>
+                    <div class="toolbar-input-wrap" style="gap:2px;">
+                        <select id="prop-fw" class="small-dropdown" title="Font Weight">
+                            <option value="normal" ${meta.fontWeight === 'normal' ? 'selected' : ''}>Regular</option>
                             <option value="bold" ${meta.fontWeight === 'bold' ? 'selected' : ''}>Bold</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Alignment</label>
-                        <select id="prop-align">
+                        <select id="prop-align" class="small-dropdown" title="Text Alignment">
                             <option value="left" ${meta.textAlign === 'left' ? 'selected' : ''}>Left</option>
                             <option value="center" ${meta.textAlign === 'center' ? 'selected' : ''}>Center</option>
                             <option value="right" ${meta.textAlign === 'right' ? 'selected' : ''}>Right</option>
                         </select>
                     </div>
+                </div>
             `;
 
-            if (meta.type === 'text') {
+            if (meta.type === 'var-text') {
                 html += `
-                    <div class="form-group">
-                        <label>Text Content</label>
-                        <input type="text" id="prop-text" value="${meta.text}">
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-group">
+                        <div class="toolbar-input-wrap">
+                            <input type="text" id="prop-var-name" value="${meta.varName || ''}" placeholder="Key" title="Variable Key Map">
+                        </div>
+                        <div class="toolbar-input-wrap">
+                            <select id="prop-input-type" title="Variable Type">
+                                <option value="text" ${meta.inputType === 'text' || !meta.inputType ? 'selected' : ''}>Text</option>
+                                <option value="number" ${meta.inputType === 'number' ? 'selected' : ''}>Number</option>
+                                <option value="date" ${meta.inputType === 'date' ? 'selected' : ''}>Date</option>
+                                <option value="time" ${meta.inputType === 'time' ? 'selected' : ''}>Time</option>
+                                <option value="color" ${meta.inputType === 'color' ? 'selected' : ''}>Color</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-input-wrap">
+                            <select id="prop-formatter" title="Formatter">
+                                ${ValueFormatter.buildOptionsHtml(meta.formatter)}
+                            </select>
+                        </div>
+                        <div class="toolbar-input-wrap">
+                            <input type="text" id="prop-text" value="${meta.text}" placeholder="Default value" title="Default Fallback Value" style="flex:1;">
+                        </div>
                     </div>
                 `;
             } else {
                 html += `
-                    <div class="form-group">
-                        <label>Variable Name</label>
-                        <input type="text" id="prop-var-name" value="${meta.varName}" placeholder="e.g. batch_no">
-                    </div>
-                    <div class="form-group">
-                        <label>Input Type</label>
-                        <select id="prop-input-type">
-                            <option value="text" ${meta.inputType === 'text' || !meta.inputType ? 'selected' : ''}>Text</option>
-                            <option value="number" ${meta.inputType === 'number' ? 'selected' : ''}>Number</option>
-                            <option value="date" ${meta.inputType === 'date' ? 'selected' : ''}>Date</option>
-                            <option value="time" ${meta.inputType === 'time' ? 'selected' : ''}>Time</option>
-                            <option value="color" ${meta.inputType === 'color' ? 'selected' : ''}>Color</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Output Formatter</label>
-                        <select id="prop-formatter">
-                            ${ValueFormatter.buildOptionsHtml(meta.formatter)}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Placeholder Text</label>
-                        <input type="text" id="prop-text" value="${meta.text}">
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-group" style="flex:1;">
+                        <div class="toolbar-input-wrap" style="flex:1;">
+                            <input type="text" id="prop-text" value="${meta.text}" style="width:100%; min-width:150px;" placeholder="Text content..." title="Text Content">
+                        </div>
                     </div>
                 `;
             }
-
-            html += `
-            </div>`;
         } else if (meta.type === 'barcode' || meta.type === 'qrcode') {
             html += `
-                <div class="prop-section">
-                    <h3>${meta.type === 'barcode' ? 'Barcode' : 'QR Code'} Properties</h3>
-                    <div class="form-group">
-                        <label>Value Source</label>
-                        <select id="prop-val-source">
-                            <option value="fixed" ${!meta.isVariableValue ? 'selected' : ''}>Fixed Value</option>
-                            <option value="variable" ${meta.isVariableValue ? 'selected' : ''}>From Variable</option>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <div class="toolbar-input-wrap">
+                        <select id="prop-val-source" title="Value Type">
+                            <option value="fixed" ${!meta.isVariableValue ? 'selected' : ''}>Fixed</option>
+                            <option value="variable" ${meta.isVariableValue ? 'selected' : ''}>Variable</option>
                         </select>
                     </div>
             `;
 
             if (!meta.isVariableValue) {
                 html += `
-                    <div class="form-group">
-                        <label>Fixed Value</label>
-                        <input type="text" id="prop-val" value="${meta.value}">
+                    <div class="toolbar-input-wrap" style="flex:1;">
+                        <input type="text" id="prop-val" value="${meta.value}" style="width:100%; min-width:150px;" placeholder="Barcode Value..." title="Code Value">
                     </div>
                 `;
             } else {
                 html += `
-                    <div class="form-group">
-                        <label>Variable Name Map</label>
-                        <input type="text" id="prop-var-name" value="${meta.varName || ''}" placeholder="e.g. batch_no">
+                    <div class="toolbar-input-wrap">
+                        <input type="text" id="prop-var-name" value="${meta.varName || ''}" placeholder="Variable Map Key" title="Variable Map Key">
                     </div>
-                    <div class="form-group">
-                        <label>Preview Value</label>
-                        <input type="text" id="prop-val" value="${meta.value}">
+                    <div class="toolbar-input-wrap" style="flex:1;">
+                        <input type="text" id="prop-val" value="${meta.value}" style="width:100%; min-width:100px;" placeholder="Preview Output" title="Preview Resulting Value">
                     </div>
                 `;
             }
 
             if (meta.type === 'barcode') {
                 html += `
-                    <div class="form-group">
-                        <label>Display Text Below Barcode</label>
-                        <select id="prop-display-val">
-                            <option value="true" ${meta.displayValue ? 'selected' : ''}>Yes</option>
-                            <option value="false" ${!meta.displayValue ? 'selected' : ''}>No</option>
+                    <div class="toolbar-input-wrap">
+                        <select id="prop-display-val" title="Display Number Sequence Under Lines">
+                            <option value="true" ${meta.displayValue ? 'selected' : ''}>Show Value</option>
+                            <option value="false" ${!meta.displayValue ? 'selected' : ''}>Hide Value</option>
                         </select>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+        } else if (meta.type === 'line' || meta.type === 'square' || meta.type === 'circle') {
+            html += `
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <div class="toolbar-input-wrap">
+                        <input type="color" id="prop-stroke-color" value="${meta.strokeColor || '#000000'}" title="Border Color">
+                    </div>
+                    <div class="toolbar-input-wrap">
+                        <input type="number" id="prop-stroke-width" value="${meta.strokeThickness || 1}" min="0" step="1" title="Thickness/Width (px)">
+                    </div>
+            `;
+
+            if (meta.type === 'square' || meta.type === 'circle') {
+                const isTransparent = meta.fillColor === 'transparent' || !meta.fillColor;
+                html += `
+                    <div class="toolbar-input-wrap">
+                        <input type="checkbox" id="prop-fill-transparent" ${isTransparent ? 'checked' : ''} style="margin:0;">
+                        <label for="prop-fill-transparent" style="cursor:pointer;" title="Transparent Fill">Clear</label>
+                    </div>
+                    <div class="toolbar-input-wrap" style="display:${isTransparent ? 'none' : 'flex'};" id="prop-fill-color-group">
+                        <input type="color" id="prop-fill-color" value="${isTransparent ? '#ffffff' : meta.fillColor}" title="Fill Color">
                     </div>
                 `;
             }
@@ -163,8 +176,8 @@ class PropertyPanel {
         }
 
         html += `
-            <div class="prop-section delete-section">
-                <button id="btn-delete-el" class="btn danger full-width">Delete Element</button>
+            <div style="margin-left:auto;">
+                <button id="btn-delete-el" class="btn danger" style="padding:6px 16px; height:30px; line-height:1;">Delete</button>
             </div>
         `;
 
@@ -219,6 +232,26 @@ class PropertyPanel {
         });
         document.getElementById('prop-val')?.addEventListener('input', (e) => update('value', e.target.value));
         document.getElementById('prop-display-val')?.addEventListener('change', (e) => update('displayValue', e.target.value === 'true'));
+
+        // Shape listeners
+        document.getElementById('prop-stroke-color')?.addEventListener('input', (e) => update('strokeColor', e.target.value));
+        document.getElementById('prop-stroke-width')?.addEventListener('input', (e) => update('strokeThickness', safeFloat('prop-stroke-width')));
+
+        const fillTransparentCb = document.getElementById('prop-fill-transparent');
+        fillTransparentCb?.addEventListener('change', (e) => {
+            const isTransparent = e.target.checked;
+            const group = document.getElementById('prop-fill-color-group');
+            if (isTransparent) {
+                group.style.display = 'none';
+                update('fillColor', 'transparent');
+            } else {
+                group.style.display = 'flex';
+                // Pick up the current color input value when toggling off transparent
+                const currentColor = document.getElementById('prop-fill-color').value;
+                update('fillColor', currentColor);
+            }
+        });
+        document.getElementById('prop-fill-color')?.addEventListener('input', (e) => update('fillColor', e.target.value));
 
         document.getElementById('btn-bring-forward')?.addEventListener('click', () => this.elementManager.bringForward());
         document.getElementById('btn-send-backward')?.addEventListener('click', () => this.elementManager.sendBackward());

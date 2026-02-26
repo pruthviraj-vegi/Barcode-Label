@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════
+   BARCODE LABEL DESIGNER — Modern Design System
+   ═══════════════════════════════════════════════ */
+
+:root {
+  /* Light Mode — warm, clean palette */
+  --bg-color: #f0f2f5;
+  --panel-bg: #ffffff;
+  --panel-bg-translucent: rgba(255, 255, 255, 0.85);
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: rgba(99, 102, 241, 0.08);
+  --secondary-color: #f4f4f7;
+  --secondary-hover: #e8e8ee;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --success-color: #10b981;
+  --canvas-bg: #ffffff;
+  --canvas-border: #d1d5db;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --modal-overlay: rgba(15, 23, 42, 0.5);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg-color: #0f1117;
+  --panel-bg: #1a1d28;
+  --panel-bg-translucent: rgba(26, 29, 40, 0.92);
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0ad;
+  --text-muted: #5c6370;
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --primary-color: #818cf8;
+  --primary-hover: #a5b4fc;
+  --primary-light: rgba(129, 140, 248, 0.1);
+  --secondary-color: #252836;
+  --secondary-hover: #2f3344;
+  --danger-color: #f87171;
+  --danger-hover: #ef4444;
+  --success-color: #34d399;
+  --canvas-bg: #ffffff;
+  --canvas-border: #374151;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+}

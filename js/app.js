@@ -193,7 +193,7 @@ const App = {
         if (this.canvasManager) {
             // If already initialized, just resize the existing workspace and clear it
             this.canvasManager.resize(widthMm, heightMm);
-            this.elementManager.clearAll();
+            this.elementManager.clearAll(); // Note: clearAll() already calls buildLayersPanel internally now
             this.canvasManager.clear();
 
             // Note: Keep zoom level intact
@@ -203,6 +203,7 @@ const App = {
         // Instantiate managers (only happens once on boot)
         this.canvasManager = new CanvasManager('design-canvas', widthMm, heightMm);
         this.elementManager = new ElementManager(this.canvasManager);
+        this.elementManager.buildLayersPanel(); // Show empty layers state
         this.propertyPanel = new PropertyPanel(this.elementManager);
         this.templateManager = new TemplateManager(this.canvasManager, this.elementManager);
         this.printEngine = new PrintEngine(this.canvasManager, this.elementManager);

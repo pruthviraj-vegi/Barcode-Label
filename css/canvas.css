@@ -1,0 +1,189 @@
+/* ── Design Area ── */
+.design-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+  overflow: hidden;
+  position: relative;
+}
+
+.canvas-container-scroll {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  padding: 40px;
+  /* Subtle dot grid bg */
+  background-image: radial-gradient(
+    circle,
+    var(--border-color) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+
+/* ── Canvas ── */
+.canvas-wrapper {
+  box-shadow: var(--shadow-lg);
+  border-radius: 2px;
+  background-color: var(--canvas-border);
+  padding: 1px;
+  transition: box-shadow var(--transition-smooth);
+}
+
+.canvas-wrapper:hover {
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 1px var(--primary-color);
+}
+
+#design-canvas {
+  background-color: #fff;
+  position: relative;
+  overflow: hidden;
+  transform-origin: top left;
+  box-sizing: border-box;
+}
+
+/* ── Status Bar ── */
+.status-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 16px;
+  background-color: var(--panel-bg);
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  z-index: 5;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.zoom-controls input[type="range"] {
+  width: 120px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  height: 4px;
+}
+
+/* ── Grid (1mm) ── */
+.show-grid #design-canvas {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 0.5px, transparent 0.5px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0.5px, transparent 0.5px);
+  background-size: 3.7795px 3.7795px;
+}
+
+/* Center Guidelines */
+.show-grid #design-canvas::before,
+.show-grid #design-canvas::after {
+  content: "";
+  position: absolute;
+  background-color: rgba(99, 102, 241, 0.3);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.show-grid #design-canvas::before {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.show-grid #design-canvas::after {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+/* ═══════════════════════════════
+   DESIGNER ELEMENTS
+   ═══════════════════════════════ */
+
+.designer-element {
+  position: absolute;
+  cursor: grab;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: box-shadow var(--transition-fast);
+}
+
+.designer-element:active {
+  cursor: grabbing;
+}
+
+.designer-element.selected {
+  outline: 0.5px dashed rgba(99, 102, 241, 0.5);
+}
+
+/* Resize Handles */
+.designer-element.selected > .resize-handle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: white;
+  border: 1px solid var(--primary-color);
+  border-radius: 1px;
+  z-index: 10;
+  box-shadow: 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.designer-element.selected .resize-handle.tl {
+  top: -3px;
+  left: -3px;
+  cursor: nwse-resize;
+}
+.designer-element.selected .resize-handle.tr {
+  top: -3px;
+  right: -3px;
+  cursor: nesw-resize;
+}
+.designer-element.selected .resize-handle.bl {
+  bottom: -3px;
+  left: -3px;
+  cursor: nesw-resize;
+}
+.designer-element.selected .resize-handle.br {
+  bottom: -3px;
+  right: -3px;
+  cursor: nwse-resize;
+}
+
+/* Edge (mid-point) handles */
+.designer-element.selected .resize-handle.tm {
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+.designer-element.selected .resize-handle.bm {
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+.designer-element.selected .resize-handle.ml {
+  left: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+.designer-element.selected .resize-handle.mr {
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}

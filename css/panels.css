@@ -1,0 +1,112 @@
+/* Layer Panel UI */
+.layer-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+.layer-item:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-1px);
+}
+.layer-item.active {
+  border-color: var(--primary-color);
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+.layer-item .icon {
+  margin-right: 10px;
+  opacity: 0.7;
+}
+.layer-item.active .icon {
+  opacity: 1;
+}
+.layer-item-ghost {
+  opacity: 0.4;
+  background-color: var(--bg-color);
+  border: 1px dashed var(--primary-color);
+}
+.layer-item .drag-handle:hover {
+  opacity: 1 !important;
+  color: var(--primary-color);
+}
+
+/* ── Properties Panel ── */
+.properties-panel {
+  font-size: 0.8rem;
+}
+
+.properties-panel .empty-state {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-align: center;
+  padding: 24px 8px;
+  line-height: 1.6;
+}
+
+.prop-section {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.prop-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.prop-section h3 {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.prop-section .form-group {
+  margin-bottom: 8px;
+}
+
+.prop-section .form-group label {
+  font-size: 0.7rem;
+  margin-bottom: 3px;
+}
+
+.prop-section .form-group input,
+.prop-section .form-group select {
+  padding: 5px 8px;
+  font-size: 0.8rem;
+}
+
+.prop-section .form-group.row {
+  display: flex;
+  gap: 6px;
+}
+
+.prop-section .form-group.row .col {
+  flex: 1;
+}
+
+.prop-section .form-group.row .btn {
+  flex: 1;
+  font-size: 0.7rem;
+  padding: 5px 8px;
+}
+
+.delete-section {
+  padding-top: 8px;
+  border-bottom: none;
+}
+
+.delete-section .btn {
+  font-size: 0.75rem;
+  padding: 7px 12px;
+}

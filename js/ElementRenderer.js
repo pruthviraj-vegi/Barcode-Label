@@ -75,6 +75,47 @@ const ElementRenderer = {
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.L
             });
+
+        } else if (meta.type === 'line' || meta.type === 'square' || meta.type === 'circle') {
+            const shapeDiv = document.createElement('div');
+            shapeDiv.style.width = '100%';
+            shapeDiv.style.height = '100%';
+            shapeDiv.style.boxSizing = 'border-box';
+            shapeDiv.style.position = 'absolute';
+            shapeDiv.style.top = '0';
+            shapeDiv.style.left = '0';
+            shapeDiv.style.pointerEvents = 'none'; // CRITICAL: Let clicks pass through to to interact.js parent container
+            shapeDiv.style.webkitPrintColorAdjust = 'exact'; // CRITICAL FOR PRINTING
+            shapeDiv.style.printColorAdjust = 'exact'; // Standard property
+
+            if (meta.type === 'line') {
+                // Determine layout direction (horizontal vs vertical based on dimensions)
+                if (meta.width >= meta.height) {
+                    // Horizontal line centered vertically
+                    shapeDiv.style.height = `${meta.strokeThickness || 1}px`;
+                    shapeDiv.style.top = '50%';
+                    shapeDiv.style.transform = 'translateY(-50%)';
+                    shapeDiv.style.backgroundColor = meta.strokeColor || '#000000';
+                } else {
+                    // Vertical line centered horizontally
+                    shapeDiv.style.width = `${meta.strokeThickness || 1}px`;
+                    shapeDiv.style.left = '50%';
+                    shapeDiv.style.transform = 'translateX(-50%)';
+                    shapeDiv.style.backgroundColor = meta.strokeColor || '#000000';
+                }
+            } else {
+                // Square or Circle
+                shapeDiv.style.border = `${meta.strokeThickness || 1}px solid ${meta.strokeColor}`;
+                if (meta.fillColor && meta.fillColor !== 'transparent') {
+                    shapeDiv.style.backgroundColor = meta.fillColor;
+                }
+
+                if (meta.type === 'circle') {
+                    shapeDiv.style.borderRadius = '50%';
+                }
+            }
+
+            el.appendChild(shapeDiv);
         }
     },
 

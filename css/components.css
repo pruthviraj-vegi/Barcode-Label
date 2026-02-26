@@ -1,0 +1,231 @@
+/* ═══════════════════════════════
+   TOOL BUTTONS & ACCORDION
+   ═══════════════════════════════ */
+
+/* Accordion Group wrapper */
+.tool-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool-group {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--panel-bg);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.tool-group[open] {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.tool-group-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--secondary-color);
+  list-style: none; /* Hide default arrow in newer browsers */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.tool-group[open] .tool-group-header {
+  border-bottom-color: var(--border-color);
+  background-color: var(--bg-color);
+}
+
+.tool-group-header:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* Custom expand/collapse arrow using pseudo-element */
+.tool-group-header::after {
+  content: "▼";
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease-in-out;
+}
+
+.tool-group[open] .tool-group-header::after {
+  transform: rotate(-180deg);
+  color: var(--primary-color);
+}
+
+/* Hide default marker for webkit */
+.tool-group-header::-webkit-details-marker {
+  display: none;
+}
+
+/* Grid padding when open */
+.tool-group .tool-grid {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tool-btn {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.tool-btn:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--border-color);
+}
+
+.tool-btn:active {
+  transform: scale(0.97);
+}
+
+.tool-btn .icon {
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary-color);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.tool-btn:hover .icon {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* ═══════════════════════════════
+   BUTTONS
+   ═══════════════════════════════ */
+
+.btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
+  letter-spacing: -0.01em;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+  color: white;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
+}
+
+.btn.primary:hover {
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+  filter: brightness(1.05);
+}
+
+.btn.secondary {
+  background-color: var(--secondary-color);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn.secondary:hover {
+  background-color: var(--secondary-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.btn.danger {
+  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  color: white;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
+}
+
+.btn.danger:hover {
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  filter: brightness(1.05);
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ═══════════════════════════════
+   THEME SWITCH
+   ═══════════════════════════════ */
+
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--border-strong);
+  transition: var(--transition-smooth);
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: var(--transition-smooth);
+  border-radius: 50%;
+  box-shadow: var(--shadow-xs);
+}
+
+input:checked + .slider {
+  background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}

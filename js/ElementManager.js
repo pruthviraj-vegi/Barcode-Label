@@ -6,11 +6,18 @@ class ElementManager {
         this.elementIdCounter = 1;
 
         // Listeners for deselection
-        this.canvasManager.getContainer().addEventListener('click', (e) => {
-            if (e.target.id === 'design-canvas') {
-                this.selectElement(null);
-            }
-        });
+        const scrollContainer = document.querySelector('.canvas-container-scroll');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('mousedown', (e) => {
+                // If it's the scroll container itself, the wrapper, or the empty canvas face
+                if (e.target.classList.contains('canvas-container-scroll') ||
+                    e.target.classList.contains('canvas-wrapper') ||
+                    e.target.id === 'design-canvas') {
+                    this.selectElement(null);
+                }
+            });
+        }
+
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -39,13 +46,20 @@ class ElementManager {
 
     addElement(type) {
         const id = `el-${this.elementIdCounter++}`;
+
+        // Define default dimensions based on type
+        let defaultWidth = 20, defaultHeight = 5;
+        if (type === 'barcode') { defaultWidth = 30; defaultHeight = 10; }
+        else if (type === 'line') { defaultWidth = 30; defaultHeight = 2; }
+        else if (type === 'square' || type === 'circle') { defaultWidth = 15; defaultHeight = 15; }
+
         const elMeta = {
             id,
             type,
             x: 5, // mm
             y: 5, // mm
-            width: type === 'barcode' ? 30 : 20, // mm
-            height: type === 'barcode' ? 10 : 5,  // mm
+            width: defaultWidth, // mm
+            height: defaultHeight,  // mm
             zIndex: this.elements.length + 1,
             // Specific properties
             text: type === 'text' ? 'Sample Text' : (type === 'var-text' ? 'Variable' : ''),
@@ -59,12 +73,17 @@ class ElementManager {
             displayValue: true, // For barcode text
             inputType: type === 'var-text' ? 'text' : '', // For print form
             formatter: type === 'var-text' ? 'none' : '', // For output rendering
+
+            // New Shape properties
+            strokeColor: '#000000',
+            strokeThickness: 1, // pt or mm equivalent visual weight
+            fillColor: type === 'line' ? '' : 'transparent'
         };
 
         this.elements.push(elMeta);
         this.renderElement(elMeta);
 
-        // Auto select newly created Element
+        // Auto select newly created Element (which internally calls buildLayersPanel)
         this.selectElement(elMeta);
     }
 
@@ -149,6 +168,27 @@ class ElementManager {
                 br.className = 'resize-handle br';
                 el.appendChild(br);
             }
+            // Add edge handles for width/height-only resizing
+            if (!el.querySelector('.resize-handle.tm')) {
+                const tm = document.createElement('div');
+                tm.className = 'resize-handle tm';
+                el.appendChild(tm);
+            }
+            if (!el.querySelector('.resize-handle.mr')) {
+                const mr = document.createElement('div');
+                mr.className = 'resize-handle mr';
+                el.appendChild(mr);
+            }
+            if (!el.querySelector('.resize-handle.bm')) {
+                const bm = document.createElement('div');
+                bm.className = 'resize-handle bm';
+                el.appendChild(bm);
+            }
+            if (!el.querySelector('.resize-handle.ml')) {
+                const ml = document.createElement('div');
+                ml.className = 'resize-handle ml';
+                el.appendChild(ml);
+            }
         } else {
             el.classList.remove('selected');
             // Cleanup visually
@@ -192,10 +232,10 @@ class ElementManager {
             })
             .resizable({
                 edges: {
-                    left: '.resize-handle.tl, .resize-handle.bl',
-                    right: '.resize-handle.tr, .resize-handle.br',
-                    bottom: '.resize-handle.bl, .resize-handle.br',
-                    top: '.resize-handle.tl, .resize-handle.tr'
+                    left: '.resize-handle.tl, .resize-handle.bl, .resize-handle.ml',
+                    right: '.resize-handle.tr, .resize-handle.br, .resize-handle.mr',
+                    bottom: '.resize-handle.bl, .resize-handle.br, .resize-handle.bm',
+                    top: '.resize-handle.tl, .resize-handle.tr, .resize-handle.tm'
                 },
                 modifiers: [
                     interact.modifiers.restrictEdges({
@@ -240,20 +280,22 @@ class ElementManager {
         const prevMeta = this.selectedElement;
         this.selectedElement = meta; // Update state first
 
-        // Deselect previous
+        // Deselect previous — restore its original z-index
         if (prevMeta) {
             const prevEl = document.getElementById(prevMeta.id);
             if (prevEl) {
                 prevEl.classList.remove('selected');
+                prevEl.style.zIndex = prevMeta.zIndex; // Restore real z-index
                 this.addResizeHandles(prevEl); // removes handles visually
             }
         }
 
-        // Select new
+        // Select new — boost z-index so it stays on top during interaction
         if (this.selectedElement) {
             const el = document.getElementById(this.selectedElement.id);
             if (el) {
                 el.classList.add('selected');
+                el.style.zIndex = 9999; // Temporarily above everything
                 this.addResizeHandles(el); // adds handles visually
             }
         }
@@ -262,6 +304,80 @@ class ElementManager {
         if (App.propertyPanel) {
             App.propertyPanel.updatePanel(this.selectedElement);
         }
+
+        this.buildLayersPanel();
+    }
+
+    buildLayersPanel() {
+        const panel = document.getElementById('layers-panel');
+        if (!panel) return;
+
+        // Sort elements by zIndex descending (highest z-index on top visually)
+        const sortedElements = [...this.elements].sort((a, b) => b.zIndex - a.zIndex);
+
+        if (sortedElements.length === 0) {
+            panel.innerHTML = '<p class="empty-state" style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:10px;">No elements added.</p>';
+            return;
+        }
+
+        panel.innerHTML = '';
+        sortedElements.forEach(meta => {
+            const div = document.createElement('div');
+            div.className = `layer-item ${this.selectedElement && this.selectedElement.id === meta.id ? 'active' : ''}`;
+
+            // Generate user-friendly name and icon based on type
+            let icon = 'T';
+            let name = meta.text ? meta.text.substring(0, 15) : 'Text';
+            if (meta.type === 'var-text') { icon = '{ }'; name = meta.text || `{${meta.varName}}` || 'Variable Text'; }
+            else if (meta.type === 'barcode') { icon = '|||'; name = meta.value || 'Barcode'; }
+            else if (meta.type === 'qrcode') { icon = 'QR'; name = meta.value || 'QR Code'; }
+            else if (meta.type === 'line') { icon = '―'; name = 'Line'; }
+            else if (meta.type === 'square') { icon = '□'; name = 'Square'; }
+            else if (meta.type === 'circle') { icon = '○'; name = 'Circle'; }
+
+            div.dataset.id = meta.id; // Map DOM back to array element
+
+            div.innerHTML = `
+                <span class="icon" style="font-family:monospace; min-width:20px; display:inline-block;">${icon}</span>
+                <span class="name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">${name}</span>
+                <span class="drag-handle" style="cursor:grab; opacity:0.5; padding:0 5px;">⋮⋮</span>
+            `;
+
+            div.addEventListener('click', () => {
+                this.selectElement(meta);
+            });
+
+            panel.appendChild(div);
+        });
+
+        // Initialize SortableJS
+        if (window.Sortable) {
+            if (this._sortableLayerInstance) {
+                this._sortableLayerInstance.destroy();
+            }
+
+            this._sortableLayerInstance = new Sortable(panel, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'layer-item-ghost',
+                onEnd: () => {
+                    // Items are ordered highest zIndex (top) to lowest (bottom)
+                    const domItems = panel.querySelectorAll('.layer-item');
+                    let currentZLevel = domItems.length;
+
+                    domItems.forEach(item => {
+                        const id = item.dataset.id;
+                        const elMeta = this.elements.find(e => e.id === id);
+                        if (elMeta) {
+                            elMeta.zIndex = currentZLevel;
+                            currentZLevel--;
+                            // Update actual DOM element zIndex immediately
+                            this.renderElement(elMeta);
+                        }
+                    });
+                }
+            });
+        }
     }
 
     updateCurrentMeta(updates) {
@@ -269,6 +385,7 @@ class ElementManager {
 
         Object.assign(this.selectedElement, updates);
         this.renderElement(this.selectedElement);
+        this.buildLayersPanel();
     }
 
     /**
@@ -283,7 +400,7 @@ class ElementManager {
             }
         });
         this.elements = [];
-        this.selectedElement = null;
+        this.selectElement(null); // this will also call buildLayersPanel
     }
 
     deleteCurrentElement() {
@@ -296,7 +413,7 @@ class ElementManager {
                 interact(el).unset();
                 el.remove();
             }
-            this.selectElement(null);
+            this.selectElement(null); // replaces deleted selection
         }
     }
 
@@ -304,6 +421,7 @@ class ElementManager {
         if (!this.selectedElement) return;
         this.selectedElement.zIndex++;
         this.renderElement(this.selectedElement);
+        this.buildLayersPanel();
     }
 
     sendBackward() {
@@ -311,6 +429,7 @@ class ElementManager {
         if (this.selectedElement.zIndex > 1) {
             this.selectedElement.zIndex--;
             this.renderElement(this.selectedElement);
+            this.buildLayersPanel();
         }
     }
 }
