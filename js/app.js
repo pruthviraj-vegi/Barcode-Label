@@ -15,6 +15,17 @@ const App = {
 
         // Initialize default workspace on boot so tools (Import/Print) function immediately
         this.initializeWorkspace(50, 25);
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then((registration) => {
+                    console.log('SW registered: ', registration);
+                }).catch((registrationError) => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
     },
 
     setupThemeToggle() {
