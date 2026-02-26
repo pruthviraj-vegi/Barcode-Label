@@ -714,7 +714,7 @@ input:checked + .slider:before {
   top: 0;
 }
 
-#printZone {
+#print-zone {
   display: none;
 }
 
@@ -737,12 +737,12 @@ input:checked + .slider:before {
     display: none !important;
   }
 
-  #printZone {
+  #print-zone {
     display: block !important;
   }
 
-  #printZone .print-label-page,
-  #printZone .print-label-row {
+  #print-zone .print-label-page,
+  #print-zone .print-label-row {
     page-break-after: always;
     break-after: page;
     border: none !important;
