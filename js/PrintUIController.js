@@ -15,7 +15,6 @@ class PrintUIController {
         this.layoutSelect = document.getElementById('print-layout');
         this.gapInput = document.getElementById('print-gap');
         this.groupGap = document.getElementById('group-gap');
-        this.variablesContainer = document.getElementById('print-variables-container');
         this.variablesForm = document.getElementById('print-variables-form');
 
         // Bulk Print DOM
@@ -182,15 +181,15 @@ class PrintUIController {
      * Dynamically builds the inputs for the Manual Print modal based on active variables.
      */
     buildVariableForm() {
-        if (!this.variablesContainer || !this.variablesForm) return;
+        if (!this.variablesForm) return;
 
         if (this.variables.length === 0) {
-            this.variablesContainer.style.display = 'none';
+            this.variablesForm.style.display = 'none';
             this.variablesForm.innerHTML = '';
             return;
         }
 
-        this.variablesContainer.style.display = 'block';
+        this.variablesForm.style.display = 'block';
         let html = '';
 
         this.variables.forEach(v => {
@@ -201,10 +200,12 @@ class PrintUIController {
                 inputHtml = `<input type="text" id="var-${v.name}" class="var-input" required>`;
             }
 
+            // Using the standard .form-group layout from other modals (e.g., New Label)
+            let hintHtml = v.formatter !== 'none' ? ` <span style="text-transform:none; font-weight:normal;">(Format: ${v.formatter})</span>` : '';
+
             html += `
-                <div class="form-group" style="border: 1px solid var(--border-light); padding: 12px; border-radius: 6px; background-color: var(--bg-light);">
-                    <label for="var-${v.name}" style="font-weight: 600; color: var(--primary-color);">Var: ${v.name}</label>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">Format: ${v.formatter}</div>
+                <div class="form-group">
+                    <label for="var-${v.name}">${v.name}${hintHtml}</label>
                     ${inputHtml}
                 </div>
             `;
