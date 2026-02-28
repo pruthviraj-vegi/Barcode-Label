@@ -5,6 +5,8 @@ class ElementManager {
         this.selectedElement = null;
         this.elementIdCounter = 1;
         this.snapGuides = new SnapGuides(document.getElementById('design-canvas'), 3);
+        this.groups = [];  // Array of { id, name, collapsed }
+        this._groupIdCounter = 1;
 
         // Listeners for deselection
         const scrollContainer = document.querySelector('.canvas-container-scroll');
@@ -68,6 +70,7 @@ class ElementManager {
             fontFamily: 'Inter', // Default
             fontSize: 10, // pt
             fontWeight: 'normal',
+            fontStyle: 'normal',
             textAlign: 'left',
             value: type === 'barcode' || type === 'qrcode' ? '123456789' : '',
             isVariableValue: false, // For barcode/qrcode
@@ -78,7 +81,8 @@ class ElementManager {
             // New Shape properties
             strokeColor: '#000000',
             strokeThickness: 1, // pt or mm equivalent visual weight
-            fillColor: type === 'line' ? '' : 'transparent'
+            fillColor: type === 'line' ? '' : 'transparent',
+            group: null, // group id (null = ungrouped)
         };
 
         this.elements.push(elMeta);
@@ -144,57 +148,19 @@ class ElementManager {
     }
 
     addResizeHandles(el) {
-        // Interact.js creates handles virtually, but UI needs visual cues if selected
         if (this.selectedElement && this.selectedElement.id === el.id) {
             el.classList.add('selected');
-
-            // Add custom DOM handles for all 4 corners
-            if (!el.querySelector('.resize-handle.tl')) {
-                const tl = document.createElement('div');
-                tl.className = 'resize-handle tl';
-                el.appendChild(tl);
-            }
-            if (!el.querySelector('.resize-handle.tr')) {
-                const tr = document.createElement('div');
-                tr.className = 'resize-handle tr';
-                el.appendChild(tr);
-            }
-            if (!el.querySelector('.resize-handle.bl')) {
-                const bl = document.createElement('div');
-                bl.className = 'resize-handle bl';
-                el.appendChild(bl);
-            }
-            if (!el.querySelector('.resize-handle.br')) {
-                const br = document.createElement('div');
-                br.className = 'resize-handle br';
-                el.appendChild(br);
-            }
-            // Add edge handles for width/height-only resizing
-            if (!el.querySelector('.resize-handle.tm')) {
-                const tm = document.createElement('div');
-                tm.className = 'resize-handle tm';
-                el.appendChild(tm);
-            }
-            if (!el.querySelector('.resize-handle.mr')) {
-                const mr = document.createElement('div');
-                mr.className = 'resize-handle mr';
-                el.appendChild(mr);
-            }
-            if (!el.querySelector('.resize-handle.bm')) {
-                const bm = document.createElement('div');
-                bm.className = 'resize-handle bm';
-                el.appendChild(bm);
-            }
-            if (!el.querySelector('.resize-handle.ml')) {
-                const ml = document.createElement('div');
-                ml.className = 'resize-handle ml';
-                el.appendChild(ml);
-            }
+            const positions = ['tl', 'tr', 'bl', 'br', 'tm', 'mr', 'bm', 'ml'];
+            positions.forEach(pos => {
+                if (!el.querySelector(`.resize-handle.${pos}`)) {
+                    const h = document.createElement('div');
+                    h.className = `resize-handle ${pos}`;
+                    el.appendChild(h);
+                }
+            });
         } else {
             el.classList.remove('selected');
-            // Cleanup visually
-            const handles = el.querySelectorAll('.resize-handle');
-            handles.forEach(h => h.remove());
+            el.querySelectorAll('.resize-handle').forEach(h => h.remove());
         }
     }
 
@@ -300,10 +266,17 @@ class ElementManager {
                         meta.width = this.canvasManager.pxToMm(wPx);
                         meta.height = this.canvasManager.pxToMm(hPx);
 
-                        // Re-render content internally if needed
-                        ElementRenderer.renderContent(target, meta, this.canvasManager.pxPerMm);
-                        this.addResizeHandles(target);
+                        // Only re-render content for text/shape (skip barcodes/QR during resize for perf)
+                        if (meta.type !== 'barcode' && meta.type !== 'qrcode') {
+                            ElementRenderer.renderContent(target, meta, this.canvasManager.pxPerMm);
+                        }
                         if (App.propertyPanel) App.propertyPanel.updatePanelValues(meta);
+                    },
+                    end: (event) => {
+                        const meta = this.elements.find(m => m.id === event.target.id);
+                        if (meta && (meta.type === 'barcode' || meta.type === 'qrcode')) {
+                            ElementRenderer.renderContent(event.target, meta, this.canvasManager.pxPerMm);
+                        }
                     }
                 }
             });
@@ -345,20 +318,20 @@ class ElementManager {
         const panel = document.getElementById('layers-panel');
         if (!panel) return;
 
-        // Sort elements by zIndex descending (highest z-index on top visually)
         const sortedElements = [...this.elements].sort((a, b) => b.zIndex - a.zIndex);
 
-        if (sortedElements.length === 0) {
+        if (sortedElements.length === 0 && this.groups.length === 0) {
             panel.innerHTML = '<p class="empty-state" style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:10px;">No elements added.</p>';
             return;
         }
 
         panel.innerHTML = '';
-        sortedElements.forEach(meta => {
+
+        // Helper: create a layer-item div for an element
+        const createLayerItem = (meta) => {
             const div = document.createElement('div');
             div.className = `layer-item ${this.selectedElement && this.selectedElement.id === meta.id ? 'active' : ''}`;
 
-            // Generate user-friendly name and icon based on type
             let icon = 'T';
             let name = meta.text ? meta.text.substring(0, 15) : 'Text';
             if (meta.type === 'var-text') { icon = '{ }'; name = meta.text || `{${meta.varName}}` || 'Variable Text'; }
@@ -368,7 +341,7 @@ class ElementManager {
             else if (meta.type === 'square') { icon = '□'; name = 'Square'; }
             else if (meta.type === 'circle') { icon = '○'; name = 'Circle'; }
 
-            div.dataset.id = meta.id; // Map DOM back to array element
+            div.dataset.id = meta.id;
 
             div.innerHTML = `
                 <span class="icon" style="font-family:monospace; min-width:20px; display:inline-block;">${icon}</span>
@@ -380,33 +353,107 @@ class ElementManager {
                 this.selectElement(meta);
             });
 
-            panel.appendChild(div);
+            return div;
+        };
+
+        // Render groups
+        this.groups.forEach(group => {
+            const groupEls = sortedElements.filter(m => m.group === group.id);
+
+            const details = document.createElement('details');
+            details.className = 'layer-group';
+            if (!group.collapsed) details.open = true;
+            details.dataset.groupId = group.id;
+
+            const summary = document.createElement('summary');
+            summary.className = 'layer-group-header';
+            summary.innerHTML = `
+                <span class="layer-group-name">${group.name}</span>
+                <span class="layer-group-count">${groupEls.length}</span>
+                <button class="layer-group-delete" title="Delete group">&times;</button>
+            `;
+
+            // Toggle collapsed state
+            details.addEventListener('toggle', () => {
+                group.collapsed = !details.open;
+            });
+
+            // Delete group button
+            summary.querySelector('.layer-group-delete').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Ungroup all elements in this group
+                this.elements.forEach(m => { if (m.group === group.id) m.group = null; });
+                this.groups = this.groups.filter(g => g.id !== group.id);
+                this.buildLayersPanel();
+            });
+
+            details.appendChild(summary);
+
+            const content = document.createElement('div');
+            content.className = 'layer-group-content';
+            content.dataset.groupId = group.id;
+            groupEls.forEach(meta => content.appendChild(createLayerItem(meta)));
+            details.appendChild(content);
+
+            panel.appendChild(details);
         });
 
-        // Initialize SortableJS
+        // Render ungrouped elements
+        const ungrouped = sortedElements.filter(m => !m.group);
+        ungrouped.forEach(meta => panel.appendChild(createLayerItem(meta)));
+
+        // SortableJS for ungrouped items
         if (window.Sortable) {
             if (this._sortableLayerInstance) {
                 this._sortableLayerInstance.destroy();
             }
 
+            // Shared handler: re-sync z-index + group assignment after any drag
+            const onSortEnd = (evt) => {
+                // Update group assignment for the moved item
+                const movedId = evt.item.dataset.id;
+                const movedMeta = this.elements.find(e => e.id === movedId);
+                if (movedMeta) {
+                    const targetGroupId = evt.to.dataset.groupId || null;
+                    movedMeta.group = targetGroupId;
+                }
+
+                // Re-sync z-index from DOM order (all items across groups + root)
+                const allItems = panel.querySelectorAll('.layer-item');
+                let z = allItems.length;
+                allItems.forEach(item => {
+                    const meta = this.elements.find(e => e.id === item.dataset.id);
+                    if (meta) {
+                        meta.zIndex = z--;
+                        // Only update z-index on canvas DOM, skip full re-render
+                        const domEl = document.getElementById(meta.id);
+                        if (domEl) domEl.style.zIndex = meta.zIndex;
+                    }
+                });
+
+                this.buildLayersPanel();
+            };
+
             this._sortableLayerInstance = new Sortable(panel, {
                 animation: 150,
                 handle: '.drag-handle',
                 ghostClass: 'layer-item-ghost',
-                onEnd: () => {
-                    // Items are ordered highest zIndex (top) to lowest (bottom)
-                    const domItems = panel.querySelectorAll('.layer-item');
-                    let currentZLevel = domItems.length;
+                draggable: '.layer-item',
+                group: 'layers',
+                onEnd: onSortEnd
+            });
 
-                    domItems.forEach(item => {
-                        const id = item.dataset.id;
-                        const elMeta = this.elements.find(e => e.id === id);
-                        if (elMeta) {
-                            elMeta.zIndex = currentZLevel;
-                            currentZLevel--;
-                            // Update actual DOM element zIndex immediately
-                            this.renderElement(elMeta);
-                        }
+            // SortableJS for each group content
+            this.groups.forEach(group => {
+                const groupContent = panel.querySelector(`.layer-group-content[data-group-id="${group.id}"]`);
+                if (groupContent) {
+                    new Sortable(groupContent, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        ghostClass: 'layer-item-ghost',
+                        group: 'layers',
+                        onEnd: onSortEnd
                     });
                 }
             });
@@ -418,7 +465,12 @@ class ElementManager {
 
         Object.assign(this.selectedElement, updates);
         this.renderElement(this.selectedElement);
-        this.buildLayersPanel();
+
+        // Only rebuild layers panel if a display-affecting property changed
+        const layerKeys = ['text', 'value', 'varName', 'type', 'zIndex'];
+        if (Object.keys(updates).some(k => layerKeys.includes(k))) {
+            this.buildLayersPanel();
+        }
     }
 
     /**

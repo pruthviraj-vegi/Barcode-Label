@@ -11,7 +11,9 @@ class TemplateManager {
                 height: this.canvasManager.heightMm
             },
             elements: this.elementManager.elements,
-            elementIdCounter: this.elementManager.elementIdCounter
+            elementIdCounter: this.elementManager.elementIdCounter,
+            groups: this.elementManager.groups,
+            groupIdCounter: this.elementManager._groupIdCounter
         };
     }
 
@@ -42,6 +44,10 @@ class TemplateManager {
             });
             this.elementManager.elementIdCounter = maxId + 1;
         }
+
+        // Restore groups
+        this.elementManager.groups = data.groups || [];
+        this.elementManager._groupIdCounter = data.groupIdCounter || 1;
 
         this.elementManager.selectElement(null);
     }

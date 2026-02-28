@@ -38,6 +38,116 @@
   color: var(--primary-color);
 }
 
+/* ── Layer Groups ── */
+.layer-group {
+  margin-bottom: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.layer-group-header {
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
+  background: var(--bg-color);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-color);
+  user-select: none;
+  list-style: none;
+}
+
+.layer-group-header::-webkit-details-marker {
+  display: none;
+}
+
+.layer-group-header::before {
+  content: "▶";
+  font-size: 0.6rem;
+  margin-right: 8px;
+  transition: transform 0.15s ease;
+  opacity: 0.5;
+}
+
+.layer-group[open] > .layer-group-header::before {
+  transform: rotate(90deg);
+}
+
+.layer-group-name {
+  flex: 1;
+}
+
+.layer-group-count {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  background: var(--border-color);
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-right: 6px;
+}
+
+.layer-group-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 4px;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+}
+
+.layer-group-header:hover .layer-group-delete {
+  opacity: 1;
+}
+
+.layer-group-delete:hover {
+  color: #ef4444;
+}
+
+.layer-group-content {
+  padding: 4px 4px 4px 16px;
+  background: var(--panel-bg);
+}
+
+.layer-group-content .layer-item {
+  margin-bottom: 4px;
+  font-size: 0.78rem;
+  padding: 6px 8px;
+}
+
+/* ── Add Group Button (inline with heading) ── */
+.sidebar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layer-add-group-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+}
+
+.layer-add-group-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
 /* ── Properties Panel ── */
 .properties-panel {
   font-size: 0.8rem;

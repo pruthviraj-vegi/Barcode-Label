@@ -59,9 +59,11 @@ class PropertyPanel {
                         <input type="number" id="prop-fs" value="${meta.fontSize}" step="1" title="Font Size">
                     </div>
                     <div class="toolbar-input-wrap" style="gap:2px;">
-                        <select id="prop-fw" class="small-dropdown" title="Font Weight">
-                            <option value="normal" ${meta.fontWeight === 'normal' ? 'selected' : ''}>Regular</option>
-                            <option value="bold" ${meta.fontWeight === 'bold' ? 'selected' : ''}>Bold</option>
+                        <select id="prop-fw" class="small-dropdown" title="Font Style">
+                            <option value="normal-normal" ${meta.fontWeight === 'normal' && meta.fontStyle !== 'italic' ? 'selected' : ''}>Regular</option>
+                            <option value="bold-normal" ${meta.fontWeight === 'bold' && meta.fontStyle !== 'italic' ? 'selected' : ''}>Bold</option>
+                            <option value="normal-italic" ${meta.fontWeight === 'normal' && meta.fontStyle === 'italic' ? 'selected' : ''}>Italic</option>
+                            <option value="bold-italic" ${meta.fontWeight === 'bold' && meta.fontStyle === 'italic' ? 'selected' : ''}>Bold Italic</option>
                         </select>
                         <select id="prop-align" class="small-dropdown" title="Text Alignment">
                             <option value="left" ${meta.textAlign === 'left' ? 'selected' : ''}>Left</option>
@@ -219,7 +221,11 @@ class PropertyPanel {
 
         document.getElementById('prop-font-family')?.addEventListener('change', (e) => update('fontFamily', e.target.value));
         document.getElementById('prop-fs')?.addEventListener('input', () => update('fontSize', safeFloat('prop-fs')));
-        document.getElementById('prop-fw')?.addEventListener('change', (e) => update('fontWeight', e.target.value));
+        document.getElementById('prop-fw')?.addEventListener('change', (e) => {
+            const [weight, style] = e.target.value.split('-');
+            update('fontWeight', weight);
+            update('fontStyle', style);
+        });
         document.getElementById('prop-align')?.addEventListener('change', (e) => update('textAlign', e.target.value));
         document.getElementById('prop-text')?.addEventListener('input', (e) => update('text', e.target.value));
         document.getElementById('prop-var-name')?.addEventListener('input', (e) => update('varName', e.target.value));

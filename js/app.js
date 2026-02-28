@@ -239,6 +239,28 @@ const App = {
                 this.elementManager.addElement(toolType);
             });
         });
+
+        // New Group button
+        const newGroupBtn = document.getElementById('btn-new-group');
+        if (newGroupBtn) {
+            newGroupBtn.addEventListener('click', () => {
+                if (!this.elementManager) return;
+                const name = prompt('Group name:', `Group ${this.elementManager._groupIdCounter}`);
+                if (!name) return;
+                const group = {
+                    id: `group-${this.elementManager._groupIdCounter++}`,
+                    name: name,
+                    collapsed: false
+                };
+                this.elementManager.groups.push(group);
+
+                // If an element is selected, assign it to the new group
+                if (this.elementManager.selectedElement) {
+                    this.elementManager.selectedElement.group = group.id;
+                }
+                this.elementManager.buildLayersPanel();
+            });
+        }
     },
 
     setupTopActions() {

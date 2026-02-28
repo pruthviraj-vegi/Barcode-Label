@@ -33,6 +33,7 @@ const ElementRenderer = {
             span.style.fontFamily = `"${meta.fontFamily || 'Inter'}", sans-serif`;
             span.style.fontSize = `${meta.fontSize}pt`;
             span.style.fontWeight = meta.fontWeight;
+            span.style.fontStyle = meta.fontStyle || 'normal';
             span.style.textAlign = meta.textAlign;
             span.style.wordBreak = 'break-word';
             span.style.overflow = 'hidden';
