@@ -37,17 +37,30 @@ A lightweight, purely client-side web application for designing and printing cus
 ```text
 barcode-printer/
 ├── css/
-│   └── styles.css           # Main cascading stylesheet including themes and layout
+│   ├── variables.css        # CSS custom properties (colors, spacing, themes)
+│   ├── base.css             # Reset and base element styles
+│   ├── layout.css           # App shell layout (sidebar, main, header)
+│   ├── components.css       # Reusable UI components (buttons, inputs, etc.)
+│   ├── toolbar.css          # Top properties toolbar styles
+│   ├── canvas.css           # Design canvas, grid overlay, resize handles
+│   ├── panels.css           # Sidebar panels (tools, layers)
+│   ├── modals.css           # Modal dialogs
+│   └── print.css            # @media print rules and print zone layout
 ├── js/
 │   ├── app.js               # Application initialization and UI event binding
 │   ├── CanvasManager.js     # Manages canvas initialization, scaling, and grid
+│   ├── CSVParser.js         # Parses CSV uploads for bulk printing
 │   ├── ElementManager.js    # Handles elements creation, selection state, and positioning
 │   ├── ElementRenderer.js   # Responsible for DOM injection and rendering of tools
 │   ├── PrintEngine.js       # Prepares the hidden DOM printable area and processes layouts
-│   ├── PropertyPanel.js     # Hooks element properties to the right sidebar UI form
+│   ├── PrintUIController.js # UI interactions for manual and bulk print modals
+│   ├── PropertyPanel.js     # Hooks element properties to the top properties toolbar
+│   ├── SnapGuides.js        # Photoshop-style smart alignment snap guides
 │   ├── TemplateManager.js   # Controls localStorage saves and JSON File API Import/Export
-│   └── ValueFormatter.js    # Processes dynamic text evaluation for variables
+│   └── ValueFormatter.js    # Pluggable formatter registry for variable output
 ├── index.html               # Main HTML architecture and layout
+├── manifest.json            # PWA manifest for offline support
+├── sw.js                    # Service worker for asset caching
 └── README.md                # Project documentation
 ```
 

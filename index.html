@@ -9,17 +9,9 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6366f1">
     <!-- Styles -->
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/toolbar.css">
-    <link rel="stylesheet" href="css/canvas.css">
-    <link rel="stylesheet" href="css/panels.css">
-    <link rel="stylesheet" href="css/modals.css">
-    <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="styles.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;600;700&family=Oswald:wght@400;600&family=Source+Sans+3:wght@400;600&family=Slabo+27px&family=Raleway:wght@400;600&family=PT+Sans:wght@400;700&family=Josefin+Sans:wght@400;600&family=Nunito:wght@400;600;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;600&family=Rubik:wght@400;600&family=Merriweather:wght@400;700&family=Noto+Sans:wght@400;600&family=Fira+Sans:wght@400;600&family=Work+Sans:wght@400;600&family=Quicksand:wght@400;600&family=Karla:wght@400;600&family=Inconsolata:wght@400;600&family=Cabin:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" id="google-fonts-link">
     <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -28,40 +20,40 @@
 <body>
     <div id="app-container">
         <!-- Header / Toolbar -->
-        <header class="top-bar">
+        <header class="top-bar" role="banner">
             <div class="brand">
                 <h1><img src="icon.svg" alt="App Logo" style="height: 28px; vertical-align: middle; margin-right: 12px; border-radius: 6px;">Barcode Label Designer</h1>
             </div>
-            <div class="top-actions">
-                <button id="btn-new-project" class="btn primary" style="background-color: var(--secondary-color); margin-right: 15px;">New Project</button>
-                <button id="btn-export-json" class="btn secondary">Export</button>
-                <button id="btn-import-json" class="btn secondary">Import</button>
-                <input type="file" id="import-file-input" style="display: none;" accept=".json">
-                <button id="btn-bulk-print" class="btn primary" style="background-color: var(--secondary-color);">Bulk Print (CSV)</button>
-                <button id="btn-print" class="btn primary">Print</button>
+            <div class="top-actions" role="navigation" aria-label="Main Actions">
+                <button id="btn-new-project" class="btn primary" style="background-color: var(--secondary-color); margin-right: 15px;" aria-label="New Project">New Project</button>
+                <button id="btn-export-json" class="btn secondary" aria-label="Export Design to JSON">Export</button>
+                <button id="btn-import-json" class="btn secondary" aria-label="Import Design from JSON">Import</button>
+                <input type="file" id="import-file-input" style="display: none;" accept=".json" aria-hidden="true">
+                <button id="btn-bulk-print" class="btn primary" style="background-color: var(--secondary-color);" aria-label="Bulk Print from CSV">Bulk Print (CSV)</button>
+                <button id="btn-print" class="btn primary" aria-label="Print Current Design">Print</button>
                 <div class="theme-switch-wrapper">
-                    <label class="theme-switch" for="checkbox-theme">
+                    <label class="theme-switch" for="checkbox-theme" aria-label="Toggle Dark Mode">
                         <input type="checkbox" id="checkbox-theme" />
                         <span class="slider round"></span>
                     </label>
-                    <span id="theme-icon">🌙</span>
+                    <span id="theme-icon" aria-hidden="true">🌙</span>
                 </div>
                 <!-- Grid Switch -->
                 <div class="theme-switch-wrapper" style="margin-right:0;">
-                    <label class="theme-switch" for="checkbox-grid">
+                    <label class="theme-switch" for="checkbox-grid" aria-label="Toggle Canvas Grid">
                         <input type="checkbox" id="checkbox-grid" />
                         <span class="slider round"></span>
                     </label>
-                    <span style="margin-left:8px; font-size:14px; font-weight:500;">Grid</span>
+                    <span style="margin-left:8px; font-size:14px; font-weight:500;" aria-hidden="true">Grid</span>
                 </div>
             </div>
         </header>
 
         <div class="main-content">
             <!-- Left Sidebar: Tools -->
-            <aside class="sidebar left-sidebar">
+            <aside class="sidebar left-sidebar" role="complementary" aria-label="Tools Sidebar">
                 <h2>Tools</h2>
-                <div class="tool-accordion">
+                <div class="tool-accordion" role="group" aria-label="Design Tools">
                     <!-- Text Tools -->
                     <details class="tool-group" open>
                         <summary class="tool-group-header">Text</summary>
@@ -114,9 +106,9 @@
             </aside>
 
             <!-- Center: Design Canvas & Top Properties -->
-            <main class="design-area">
+            <main class="design-area" role="main">
                 <!-- Top Properties Toolbar -->
-                <div class="top-properties-bar" style="display: none;">
+                <div class="top-properties-bar" style="display: none;" role="toolbar" aria-label="Element Properties">
                     <div id="properties-panel" class="properties-panel-horizontal">
                         <!-- Form injected by JS based on selection -->
                     </div>
@@ -138,9 +130,9 @@
             </main>
 
             <!-- Right Sidebar: Layers -->
-            <aside class="sidebar right-sidebar">
-                <h2 class="sidebar-heading">Layers <button id="btn-new-group" class="layer-add-group-btn" title="New Group">+</button></h2>
-                <div id="layers-panel" class="layers-panel" style="flex: 1; overflow-y: auto;">
+            <aside class="sidebar right-sidebar" role="complementary" aria-label="Layers Sidebar">
+                <h2 class="sidebar-heading">Layers <button id="btn-new-group" class="layer-add-group-btn" title="New Group" aria-label="Add Layer Group">+</button></h2>
+                <div id="layers-panel" class="layers-panel" style="flex: 1; overflow-y: auto;" role="list" aria-label="Layer List">
                     <!-- Layers injected by JS -->
                 </div>
             </aside>
@@ -278,26 +270,6 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script src="js/ElementRenderer.js"></script>
-    <script src="js/ValueFormatter.js"></script>
-    <script src="js/CanvasManager.js"></script>
-    <script src="js/SnapGuides.js"></script>
-    <script src="js/ElementManager.js"></script>
-    <script src="js/PropertyPanel.js"></script>
-    <script src="js/TemplateManager.js"></script>
-    <script src="js/CSVParser.js"></script>
-    <script src="js/PrintUIController.js"></script>
-    <script src="js/PrintEngine.js"></script>
-    <script src="js/app.js"></script>
-
-    <!-- Google tag (gtag.js) -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-6WX3JN0KGR"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-6WX3JN0KGR');
-    </script> -->
-
+    <script src="main.js"></script>
 </body>
 </html>
